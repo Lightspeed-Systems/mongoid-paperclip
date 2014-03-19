@@ -7,6 +7,22 @@ rescue LoadError
   exit
 end
 
+Paperclip.interpolates :id_partition do |attachment, style|
+
+  if attachment.instance.respond_to?("embedded?")
+    attachment.instance.id.to_s.scan(/.{4}/).join("/")
+  else
+    case id = attachment.instance.id
+    when Integer
+      ("%09d" % id).scan(/\d{3}/).join("/")
+    when String
+      id.scan(/.{3}/).first(3).join("/")
+    else
+      nil
+    end
+  end
+end
+
 ##
 # mongoid criteria uses a different syntax.
 module Paperclip
